@@ -1,16 +1,12 @@
 #pragma once
+#include <cstddef>
+#include <stdexcept>
 using namespace std;
 
 template <class T>
-class ListNode {
-private:
+struct ListNode {
   ListNode* next;
   T data;
-public:
-  ListNode(T data);
-  T getData();
-  ListNode* getNext();
-  void setNext(ListNode* next);
 };
 
 template <class T>
@@ -20,16 +16,172 @@ private:
   ListNode<T>* tail;
   size_t num_items;
 public:
-  Single_Linked_List();
-  ~Single_Linked_List();
-  void push_front(T data);
-  void push_back(T data);
-  T pop_front();
-  T pop_back();
-  T front() const;
-  T back() const;
-  bool empty() const;
-  void insert(size_t index, const T& item);
-  bool remove(size_t index);
-  size_t find(const T& item) const;
+  // Constructor
+  Single_Linked_List() {
+    head = tail = nullptr;
+    num_items = 0;
+  }
+
+  // Destructor
+  ~Single_Linked_List() {
+    ListNode<T>* tmp;
+    // Advance through the list, deleting each node
+    while (head != nullptr) {
+      tmp = head;
+      head = head->next;
+      delete tmp;
+    }
+  }
+  
+  void push_front(T data) {
+    ListNode<T>* newNode = new ListNode<T>;
+    newNode->data = data;
+    newNode->next = nullptr;
+
+    if (head == nullptr) {
+      head = tail = newNode;
+    } else {
+      newNode->next = head;
+      head = newNode;
+    }
+    num_items++;
+  }
+  
+  void push_back(T data) {
+    ListNode<T>* newNode = new ListNode<T>;
+    newNode->data = data;
+    newNode->next = nullptr;
+
+    if (head == nullptr) {
+      head = tail = newNode;
+    } else {
+      tail->next = newNode;
+      tail = newNode;
+    }
+    num_items++;
+  }
+  
+  T pop_front() {
+    // Check if list is empty
+    if (head == nullptr) {
+      throw runtime_error("Single_Linked_List is empty, cannot pop");
+    }
+
+    // Save the first value of the list, and then delete it
+    T val = head->data;
+    if (num_items == 1) {
+      delete head;
+      head = tail = nullptr;
+    } else {
+      ListNode<T>* tmp = head;
+      head = head->next;
+      delete tmp;
+    }
+    num_items--;
+    return val;
+  }
+  
+  T pop_back() {
+    // Check if list is empty
+    if (head == nullptr) {
+      throw runtime_error("Single_Linked_List is empty, cannot pop");
+    }
+
+    T val = tail->data;
+    if (num_items == 1) {
+      delete head;
+      head = tail = nullptr;
+    } else {
+      ListNode<T>* walker = head;
+      while (walker->next != tail) {
+	walker = walker->next;
+      }
+      delete tail;
+      tail = walker;
+      tail->next = nullptr;
+    }
+    num_items--;
+    return val;
+  }
+  
+  T front() const {
+    return head->data;
+  }
+  
+  T back() const {
+    return tail->data;
+  }
+
+  bool empty() const {
+    return num_items == 0;
+  }
+  
+  void insert(size_t index, const T& item) {
+    ListNode<T>* newNode = new ListNode<T>;
+    newNode->data = item;
+    newNode->next = nullptr;
+    
+    if (index == 0) {
+      // insert at beginning
+      newNode->next = head;
+      head = newNode;
+      
+      if (tail == nullptr) {
+	// if inserting in an empty list
+	tail = head;
+      }
+    } else if (index >= num_items) {
+      // insert at end
+      tail->next = newNode;
+      tail = newNode;
+      
+      if (head == nullptr) {
+	// if inserting in an empty list
+        head = tail;
+      }
+    } else {
+      ListNode<T>* walker = head;
+      for (size_t i = 0; i < index - 1; i++) {
+	walker = walker->next;
+      }
+      newNode->next = walker->next;
+      walker->next = newNode;
+    }
+    num_items++;
+  }
+  
+  bool remove(size_t index) {
+    ListNode<T>* prev = head;
+    ListNode<T>* next = prev->next;
+    if (index >= num_items) {
+      return false;
+    }
+    if (index == 0) {
+      head = next;
+      delete prev;
+    } else {
+      for (size_t i = 1; i < index - 1; i++) {
+        prev = prev->next;
+	next = next->next;
+      }
+      prev->next = next->next;
+      delete next;
+      if (prev->next == nullptr) {
+	tail = prev->next;
+      }
+    }
+    num_items--;
+    return true;
+  }
+  
+  size_t find(const T& item) const {
+    ListNode<T>* walker = head;
+    for (size_t i = 0; i < num_items; i++) {
+      if (walker->data == item) {
+	return i;
+      }
+      walker = walker->next;
+    }
+    return num_items;
+  }
 };
