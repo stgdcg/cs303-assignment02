@@ -39,8 +39,10 @@ public:
     newNode->next = nullptr;
 
     if (head == nullptr) {
+      // Pushing an empty list sets head and tail
       head = tail = newNode;
     } else {
+      // Push to the front
       newNode->next = head;
       head = newNode;
     }
@@ -53,8 +55,10 @@ public:
     newNode->next = nullptr;
 
     if (head == nullptr) {
+      // Pushing an empty list sets head and tail
       head = tail = newNode;
     } else {
+      // push to the back
       tail->next = newNode;
       tail = newNode;
     }
@@ -70,9 +74,11 @@ public:
     // Save the first value of the list, and then delete it
     T val = head->data;
     if (num_items == 1) {
+      // Empty the list properly
       delete head;
       head = tail = nullptr;
     } else {
+      // Pop off the head
       ListNode<T>* tmp = head;
       head = head->next;
       delete tmp;
@@ -89,13 +95,16 @@ public:
 
     T val = tail->data;
     if (num_items == 1) {
+      // empty the list properly
       delete head;
       head = tail = nullptr;
     } else {
+      // walk to the penultimate node
       ListNode<T>* walker = head;
       while (walker->next != tail) {
 	walker = walker->next;
       }
+      // delete the last node and set the penultimate node to tail
       delete tail;
       tail = walker;
       tail->next = nullptr;
@@ -140,10 +149,13 @@ public:
         head = tail;
       }
     } else {
+      // walk through the list until you have a pointer to the right position
       ListNode<T>* walker = head;
       for (size_t i = 0; i < index - 1; i++) {
 	walker = walker->next;
       }
+
+      // Insert the node at that position
       newNode->next = walker->next;
       walker->next = newNode;
     }
@@ -151,22 +163,30 @@ public:
   }
   
   bool remove(size_t index) {
+    // Two pointers walk the list to properly delete
     ListNode<T>* prev = head;
     ListNode<T>* next = prev->next;
+    
     if (index >= num_items) {
+      // Fail the removal if the index is past the number of items
       return false;
     }
     if (index == 0) {
+      // delete from front
       head = next;
       delete prev;
     } else {
+      // if deleting from anywhere else, walk the next pointer to that point
       for (size_t i = 1; i < index - 1; i++) {
         prev = prev->next;
 	next = next->next;
       }
+
+      // Delete that node
       prev->next = next->next;
       delete next;
       if (prev->next == nullptr) {
+	// Make sure the tail is clean
 	tail = prev->next;
       }
     }
